@@ -1,8 +1,8 @@
 {
-    "name": "coe-etl-template",
+    "name": "coe-etl-axon",
     "type": "module",
     "prviate": true,
-    "version": "1.0.1",
+    "version": "1.0.0",
     "description": "",
     "main": "task.ts",
     "scripts": {

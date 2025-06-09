@@ -2,15 +2,22 @@ import { Static, Type, TSchema } from '@sinclair/typebox';
 import type { Event } from '@tak-ps/etl';
 import ETL, { SchemaType, handler as internal, local, InputFeature, InputFeatureCollection, DataFlowType, InvocationType } from '@tak-ps/etl';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars --  Fetch with an additional Response.typed(TypeBox Object) definition
 import { fetch } from '@tak-ps/etl';
 
-/**
- * The Input Schema contains the environment object that will be requested via the CloudTAK UI
- * It should be a valid TypeBox object - https://github.com/sinclairzx81/typebox
- */
 const InputSchema = Type.Object({
-    'DEBUG': Type.Boolean({
+    AgencyName: Type.String({
+        description: 'Account Name used to login to evidence.com'
+    }),
+    PartnerID: Type.String({
+        description: 'Generated as part of API Access Flow'
+    }),
+    ClientID: Type.String({
+        description: 'Generated as part of API Access Flow'
+    }),
+    ClientSecret: Type.String({
+        description: 'Generated as part of API Access Flow'
+    }),
+    DEBUG: Type.Boolean({
         default: false,
         description: 'Print results in logs'
     })
@@ -23,7 +30,7 @@ const InputSchema = Type.Object({
 const OutputSchema = Type.Object({})
 
 export default class Task extends ETL {
-    static name = 'default'
+    static name = 'etl-axon'
     static flow = [ DataFlowType.Incoming ];
     static invocation = [ InvocationType.Schedule ];
 
@@ -43,14 +50,44 @@ export default class Task extends ETL {
     }
 
     async control(): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Get the Environment from the Server and ensure it conforms to the schema
+        const layer = await this.fetchLayer();
         const env = await this.env(InputSchema);
 
-        const features: Static<typeof InputFeature>[] = [];
+        if (!layer) {
+            const oauthReq = await fetch(`https://${env.AgencyName}.evidence.com/api/oauth2/token`, {
+                method: 'POST',
+                headers: {
+                    'content-type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    grant_type: 'client_credentials',
+                    partner_id: env.PartnerID,
+                    client_id: env.ClientID,
+                    client_secret: env.ClientSecret
+                })
+            })
 
-        // Get things here and convert them to GeoJSON Feature Collections
-        // That conform to the node-cot Feature properties spec
-        // https://github.com/dfpc-coe/node-CoT/
+            const oauthRes = await oauthReq.typed(Type.Object({
+                access_token: Type.String(),
+                token_type: Type.String(),
+                expires_in: Type.Integer(),
+                expires_on: Type.Integer(),
+                not_before: Type.Integer(),
+                version: Type.String(),
+                entity: Type.Object({
+                    type: Type.String(),
+                    id: Type.String(),
+                    partner_id: Type.String()
+                })
+            }));
+
+            await this.setEphemeral({
+                access_token: oauthRes.access_token,
+                access_token_expires: String(oauthRes.expires_on)
+            })
+        }
+
+        const features: Static<typeof InputFeature>[] = [];
 
         const fc: Static<typeof InputFeatureCollection> = {
             type: 'FeatureCollection',
