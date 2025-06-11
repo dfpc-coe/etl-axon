@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.1.1
+
+- :rocket: Update Callsign Generation
+
 ### v1.1.0
 
 - :rocket: Data Ingestion working

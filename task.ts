@@ -213,7 +213,8 @@ export default class Task extends ETL {
                             battery: String(device.attributes.batteries[0].batteryPercentage)
                         } : undefined,
                         remarks: [
-                            `Agency: ${device.partnerName}`
+                            `Agency: ${device.partnerName}`,
+                            `Name: ${primary.length ? primary[0].firstName + " " + primary[0].lastName: "Unknown"}`
                         ].join('\n'),
                         metadata: {
                             partnerName: device.partnerName,
