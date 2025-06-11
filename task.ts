@@ -8,6 +8,9 @@ const InputSchema = Type.Object({
     AgencyName: Type.String({
         description: 'Account Name used to login to evidence.com'
     }),
+    AgencyAcronym: Type.Optional(Type.String({
+        description: 'Used to prefix the Callsign'
+    })),
     PartnerID: Type.String({
         description: 'Generated as part of API Access Flow'
     }),
@@ -184,6 +187,7 @@ export default class Task extends ETL {
             const features: Static<typeof InputFeature>[] = [];
 
             for (const device of devicesRes.data) {
+
                 const primary = (device.attributes.assignees || []).filter((user) => {
                     return user.primary
                 })
@@ -202,7 +206,7 @@ export default class Task extends ETL {
                     properties: {
                         type: 'a-f-G-U-U-L',
                         how: 'm-g',
-                        callsign: primary.length ? `${primary[0].firstName} ${primary[0].lastName}` : 'Unknown User',
+                        callsign: (primary.length ? `${env.AgencyAcronym || ''} ${primary[0].firstName.slice(0, 1)}. ${primary[0].lastName}` : 'Unknown User').trim(),
                         time: new Date().toISOString(),
                         start: new Date(device.attributes.location.locationUpdateTimestamp).toISOString(),
                         status: device.attributes.batteries ? {
