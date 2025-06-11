@@ -11,6 +11,10 @@ const InputSchema = Type.Object({
     AgencyAcronym: Type.Optional(Type.String({
         description: 'Used to prefix the Callsign'
     })),
+    DataTimeout: Type.Integer({
+        description: 'Get locations updated within the last provided number of minutes',
+        default: 5
+    }),
     PartnerID: Type.String({
         description: 'Generated as part of API Access Flow'
     }),
@@ -195,7 +199,7 @@ export default class Task extends ETL {
                 if (device.attributes.status === 'DOCKED') {
                     // We don't care about charging devices
                     continue;
-                } else if (new Date(device.attributes.location.locationUpdateTimestamp).getTime() < new Date().getTime() - (30 * 60 * 1000)) {
+                } else if (new Date(device.attributes.location.locationUpdateTimestamp).getTime() < new Date().getTime() - (env.DataTimeout * 60 * 1000)) {
                     // We cut off devices if we haveh't seen them for 30 minutes
                     continue;
                 }

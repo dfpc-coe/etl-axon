@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.2.0
+
+- :rocket: Add customizable timeout
+
 ### v1.1.1
 
 - :rocket: Update Callsign Generation
