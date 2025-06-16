@@ -1,6 +1,6 @@
-<h1 align='center'>ETL-Template</h1>
+<h1 align='center'>ETL-AXON</h1>
 
-<p align='center'>Template Repository for creating new ETLs</p>
+<p align='center'>Pull in Officer Locations via AXON Body Cams</p>
 
 ## Development
 
