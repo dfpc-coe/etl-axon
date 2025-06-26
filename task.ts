@@ -155,12 +155,12 @@ export default class Task extends ETL {
                     deviceUpdateTimestamp: Type.Integer(),
                     attributes: Type.Object({
                         deviceSerial: Type.String(),
-                        location: Type.Object({
+                        location: Type.Optional(Type.Object({
                             accuracy: Type.Number(),
                             latitude: Type.Number(),
                             longitude: Type.Number(),
                             locationUpdateTimestamp: Type.Integer()
-                        }),
+                        })),
                         status: Type.String(),
                         stream: Type.Object({
                             isStreamable: Type.Boolean()
@@ -199,8 +199,12 @@ export default class Task extends ETL {
                 if (device.attributes.status === 'DOCKED') {
                     // We don't care about charging devices
                     continue;
-                } else if (new Date(device.attributes.location.locationUpdateTimestamp).getTime() < new Date().getTime() - (env.DataTimeout * 60 * 1000)) {
+                } else if (
+                    // If the device has no location, we can't use it
+                    !device.attributes.location
                     // We cut off devices if we haveh't seen them for 30 minutes
+                    || new Date(device.attributes.location.locationUpdateTimestamp).getTime() < new Date().getTime() - (env.DataTimeout * 60 * 1000)
+                ) {
                     continue;
                 }
 
@@ -262,8 +266,8 @@ export default class Task extends ETL {
     }
 }
 
-await local(new Task(import.meta.url), import.meta.url);
+await local(await Task.init(import.meta.url), import.meta.url);
 export async function handler(event: Event = {}) {
-    return await internal(new Task(import.meta.url), event);
+    return await internal(await Task.init(import.meta.url), event);
 }
 
