@@ -2,7 +2,25 @@
 
 <p align='center'>Pull in Officer Locations via AXON Body Cams</p>
 
-## Development
+## Setup
+
+1. Contact the administrator of the Axon Evidence Account to create an API Token for the ETL to use.
+2. From the admin account navigate to the "Admin" tab
+3. Then select "API Settings" under "Security Settings"
+4. Click "Create Client" & fill in a name - IE "COTAK"
+5. For API permissions select the following:
+    - `Device: state.any.read Allowed`
+    - `Response: self.locate: Allowed`
+    - `Response: self.alert_mark: Allowed`
+    - `Response: any.locate: Allowed`
+    - `Users: read: Allowed`
+6. Create the client & Provide the:
+- Secret
+- Partner ID
+- Client ID
+- Agency Domain (IE <your-agency>.evidence.com)
+
+<details><summary>Development Information</summary>
 
 DFPC provided Lambda ETLs are currently all written in [NodeJS](https://nodejs.org/en) through the use of a AWS Lambda optimized
 Docker container. Documentation for the Dockerfile can be found in the [AWS Help Center](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html)
@@ -38,8 +56,9 @@ node dist/task.js
 
 Deployment into the CloudTAK environment for configuration is done via automatic releases to the DFPC AWS environment.
 
-Github actions will build and push docker releases on every version tag which can then be automatically configured via the 
+Github actions will build and push docker releases on every version tag which can then be automatically configured via the
 CloudTAK API.
 
 Non-DFPC users will need to setup their own docker => ECS build system via something like Github Actions or AWS Codebuild.
 
+</details>
