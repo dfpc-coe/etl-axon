@@ -5,7 +5,8 @@
 ## Setup
 
 1. Contact the administrator of the Axon Evidence Account to create an API Token for the ETL to use.
-2. From the admin account navigate to the "Admin" tab
+2. From the admin account navigate to the "Admin" tab![image](https://github.com/user-attachments/assets/f83d665c-aea6-4077-8b2d-ea04105644f7)
+
 3. Then select "API Settings" under "Security Settings"
 4. Click "Create Client" & fill in a name - IE "COTAK"
 5. For API permissions select the following:
