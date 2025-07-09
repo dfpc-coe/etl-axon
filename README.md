@@ -26,7 +26,7 @@
 - Agency Domain (IE <your-agency>.evidence.com)![rtaImage](https://github.com/user-attachments/assets/10316d45-6ec8-484d-8444-6d028bb1f9e9)
 
 
-<summary>Development Information</summary>
+## Development Information
 
 DFPC provided Lambda ETLs are currently all written in [NodeJS](https://nodejs.org/en) through the use of a AWS Lambda optimized
 Docker container. Documentation for the Dockerfile can be found in the [AWS Help Center](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html)
