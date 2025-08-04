@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.4.0
+
+- :arrow_up: Update Core Deps
+
 ### v1.3.0
 
 - :rocket: Make Location Optional
