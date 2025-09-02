@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.5.0
+
+- :tada: Add support for AXON Fleet Hub Devices
+
 ### v1.4.0
 
 - :arrow_up: Update Core Deps
