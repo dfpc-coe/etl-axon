@@ -47,7 +47,11 @@ const OutputSchema = Type.Object({
     primary_assignee_firstName: Type.Optional(Type.String()),
     primary_assignee_lastName: Type.Optional(Type.String()),
     primary_assignee_badgeNumber: Type.Optional(Type.String()),
-    primary_assignee_userId: Type.Optional(Type.String())
+    primary_assignee_userId: Type.Optional(Type.String()),
+
+    vehicle_vehicleId: Type.Optional(Type.String()),
+    vehicle_assigneeType: Type.Optional(Type.String()),
+    vehicle_vehicleName: Type.Optional(Type.String()),
 });
 
 export default class Task extends ETL {
@@ -163,7 +167,8 @@ export default class Task extends ETL {
                         })),
                         status: Type.String(),
                         stream: Type.Object({
-                            isStreamable: Type.Boolean()
+                            isStreamable: Type.Boolean(),
+                            reason: Type.Optional(Type.String())
                         }),
                         links: Type.Optional(Type.Object({
                             view: Type.String()
@@ -174,6 +179,14 @@ export default class Task extends ETL {
                         batteries: Type.Optional(Type.Array(Type.Object({
                             batteryPercentage: Type.Integer()
                         }))),
+                        connectedDevices: Type.Optional(Type.Array(Type.Object({
+                            axonDeviceId: Type.String()
+                        }))),
+                        vehicle: Type.Optional(Type.Object({
+                            assigneeType: Type.String(),
+                            vehicleName: Type.String(),
+                            vehicleId: Type.String()
+                        })),
                         assignees: Type.Optional(Type.Array(Type.Object({
                             assigneeType: Type.String(),
                             firstName: Type.String(),
@@ -191,7 +204,6 @@ export default class Task extends ETL {
             const features: Static<typeof InputFeature>[] = [];
 
             for (const device of devicesRes.data) {
-
                 const primary = (device.attributes.assignees || []).filter((user) => {
                     return user.primary
                 })
@@ -208,49 +220,77 @@ export default class Task extends ETL {
                     continue;
                 }
 
-                const feat: Static<typeof InputFeature> = {
-                    id: device.axonDeviceId,
-                    type: 'Feature',
-                    properties: {
-                        type: 'a-f-G-U-U-L',
-                        how: 'm-g',
-                        callsign: (primary.length ? `${env.AgencyAcronym || ''} ${primary[0].firstName.slice(0, 1)}. ${primary[0].lastName}` : 'Unknown User').trim(),
-                        time: new Date().toISOString(),
-                        start: new Date(device.attributes.location.locationUpdateTimestamp).toISOString(),
-                        status: device.attributes.batteries ? {
-                            battery: String(device.attributes.batteries[0].batteryPercentage)
-                        } : undefined,
-                        remarks: [
-                            `Agency: ${device.partnerName}`,
-                            `Name: ${primary.length ? primary[0].firstName + " " + primary[0].lastName: "Unknown"}`
-                        ].join('\n'),
-                        metadata: {
-                            partnerName: device.partnerName,
-                            axonDeviceId: device.axonDeviceId,
-                            deviceModel: device.deviceModel,
-                            deviceUpdateTimestamp: device.deviceUpdateTimestamp,
-                            deviceSerial: device.attributes.deviceSerial,
-                            location_accuracy: device.attributes.location.accuracy,
-                            location_latitude: device.attributes.location.latitude,
-                            location_longitude: device.attributes.location.longitude,
-                            location_locationUpdateTimestamp: device.attributes.location.locationUpdateTimestamp,
-                            status: device.attributes.status,
-                            stream_isStreamable: device.attributes.stream ? device.attributes.stream.isStreamable : false,
-                            signalStrength: device.attributes.signalStrengths ? device.attributes.signalStrengths[0].signalStrength : undefined,
-                            battery: device.attributes.batteries ? device.attributes.batteries[0].batteryPercentage : undefined,
-                            primary_assignee_firstName: primary.length ? primary[0].firstName : undefined,
-                            primary_assignee_lastName: primary.length ? primary[0].lastName : undefined,
-                            primary_assignee_badgeNumber: primary.length ? primary[0].badgeNumber : undefined,
-                            primary_assignee_userId: primary.length ? primary[0].userId : undefined
-                        }
-                    },
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [ device.attributes.location.longitude, device.attributes.location.latitude ]
-                    }
+                const metadata = {
+                    partnerName: device.partnerName,
+                    axonDeviceId: device.axonDeviceId,
+                    deviceModel: device.deviceModel,
+                    deviceUpdateTimestamp: device.deviceUpdateTimestamp,
+                    deviceSerial: device.attributes.deviceSerial,
+                    location_accuracy: device.attributes.location.accuracy,
+                    location_latitude: device.attributes.location.latitude,
+                    location_longitude: device.attributes.location.longitude,
+                    location_locationUpdateTimestamp: device.attributes.location.locationUpdateTimestamp,
+                    status: device.attributes.status,
+                    stream_isStreamable: device.attributes.stream ? device.attributes.stream.isStreamable : false,
+                    signalStrength: device.attributes.signalStrengths ? device.attributes.signalStrengths[0].signalStrength : undefined,
+                    battery: device.attributes.batteries ? device.attributes.batteries[0].batteryPercentage : undefined,
+                    primary_assignee_firstName: primary.length ? primary[0].firstName : undefined,
+                    primary_assignee_lastName: primary.length ? primary[0].lastName : undefined,
+                    primary_assignee_badgeNumber: primary.length ? primary[0].badgeNumber : undefined,
+                    primary_assignee_userId: primary.length ? primary[0].userId : undefined,
+                    vehicle_vehicleId: device.attributes.vehicle ? device.attributes.vehicle.vehicleId : undefined,
+                    vehicle_assigneeType: device.attributes.vehicle ? device.attributes.vehicle.assigneeType : undefined,
+                    vehicle_vehicleName: device.attributes.vehicle ? device.attributes.vehicle.vehicleName : undefined
                 }
 
-                features.push(feat);
+                if (primary.length) {
+                    features.push({
+                        id: device.axonDeviceId,
+                        type: 'Feature',
+                        properties: {
+                            type: 'a-f-G-U-U-L',
+                            how: 'm-g',
+                            callsign: (primary.length ? `${env.AgencyAcronym || ''} ${primary[0].firstName.slice(0, 1)}. ${primary[0].lastName}` : 'Unknown User').trim(),
+                            time: new Date().toISOString(),
+                            start: new Date(device.attributes.location.locationUpdateTimestamp).toISOString(),
+                            status: device.attributes.batteries ? {
+                                battery: String(device.attributes.batteries[0].batteryPercentage)
+                            } : undefined,
+                            remarks: [
+                                'Type: Officer',
+                                `Agency: ${device.partnerName}`,
+                                `Name: ${primary.length ? primary[0].firstName + " " + primary[0].lastName: "Unknown"}`
+                            ].join('\n'),
+                            metadata: metadata
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [ device.attributes.location.longitude, device.attributes.location.latitude ]
+                        }
+                    });
+                } else if (device.attributes.vehicle) {
+                    features.push({
+                        id: device.axonDeviceId,
+                        type: 'Feature',
+                        properties: {
+                            type: 'a-f-G-E-V',
+                            how: 'm-g',
+                            callsign: device.attributes.vehicle.vehicleName,
+                            time: new Date().toISOString(),
+                            start: new Date(device.attributes.location.locationUpdateTimestamp).toISOString(),
+                            remarks: [
+                                'Type: Vehicle',
+                                `Agency: ${device.partnerName}`,
+                                `Name: ${device.attributes.vehicle.vehicleName}`
+                            ].join('\n'),
+                            metadata: metadata
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [ device.attributes.location.longitude, device.attributes.location.latitude ]
+                        }
+                    });
+                }
             }
 
             const fc: Static<typeof InputFeatureCollection> = {
