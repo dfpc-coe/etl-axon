@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.8.0
+
+- :arrow_up: Update Core Dependencies
+
 ### v1.7.0
 
 - :rocket: Update Core Deps
