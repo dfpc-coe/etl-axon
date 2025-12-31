@@ -13,9 +13,9 @@
 5. For API permissions select the following:
     - `Device: state.any.read Allowed`![rtaImage](https://github.com/user-attachments/assets/b3869554-9461-49b5-a5c7-a1915f799aeb)
 
-    - `Response: self.locate: Allowed`
-    - `Response: self.alert_mark: Allowed`
-    - `Response: any.locate: Allowed`![rtaImage](https://github.com/user-attachments/assets/cb494eeb-f031-4fcc-95b0-a5afbc73596d)
+    - `Respond: self.locate: Allowed`
+    - `Respond: self.alert_mark: Allowed`
+    - `Respond: any.locate: Allowed`![rtaImage](https://github.com/user-attachments/assets/cb494eeb-f031-4fcc-95b0-a5afbc73596d)
 
     - `Users: read: Allowed`![rtaImage](https://github.com/user-attachments/assets/99584d98-f2ad-4a95-b0ce-fbd311d3c33b)
 
