@@ -149,10 +149,10 @@ export default class Task extends ETL {
                 meta: Type.Object({
                     correlationId: Type.String(),
                     serverTimestamp: Type.Integer(),
-                    totalHits: Type.Integer(),
-                    count: Type.Integer()
+                    totalHits: Type.Optional(Type.Integer()),
+                    count: Type.Optional(Type.Integer())
                 }),
-                data: Type.Array(Type.Object({
+                data: Type.Optional(Type.Array(Type.Object({
                     partnerId: Type.String(),
                     partnerName: Type.String(),
                     axonDeviceId: Type.String(),
@@ -197,14 +197,19 @@ export default class Task extends ETL {
                             primary: Type.Boolean()
                         })))
                     })
-                }))
+                })))
             }), {
                 verbose: true
             });
 
             const features: Static<typeof Feature.InputFeature>[] = [];
 
-            for (const device of devicesRes.data) {
+            if (devicesRes.data === undefined) {
+                console.log('not ok - No Devices Data Returned - Is the API Token Scoped Correctly?');
+                return;
+            }
+
+            for (const device of devicesRes.data || []) {
                 const primary = (device.attributes.assignees || []).filter((user) => {
                     return user.primary
                 })
@@ -301,7 +306,7 @@ export default class Task extends ETL {
 
             await this.submit(fc);
 
-            total = devicesRes.meta.totalHits;
+            total = devicesRes.meta.totalHits || 0;
             from = from + 2000;
         } while (total > from)
     }
