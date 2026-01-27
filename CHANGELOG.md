@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.10.0
+
+- :rocket: If Data Array is `undefined` print warning and exit
+
 ### v1.9.0
 
 - :arrow_up: Update Core Dependencies
