@@ -78,14 +78,15 @@ export default class Task extends ETL {
     async control(): Promise<void> {
         const layer = await this.fetchLayer();
         const env = await this.env(InputSchema);
+        const incomingEphemeral = layer.incoming?.ephemeral;
 
         let access_token;
 
         if (
-            !layer.incoming.ephemeral.access_token
-            || !layer.incoming.ephemeral.access_token_expires
+            !incomingEphemeral?.access_token
+            || !incomingEphemeral.access_token_expires
             // If Token is going to expire within 1 minute, request a new token
-            || (Number(layer.incoming.ephemeral.access_token_expires) + 60000) < +new Date()
+            || (Number(incomingEphemeral.access_token_expires) + 60000) < +new Date()
         ) {
             console.log('ok - Requesting New Token');
 
@@ -123,12 +124,11 @@ export default class Task extends ETL {
 
             access_token = oauthRes.access_token;
         } else {
-            access_token = layer.incoming.ephemeral.access_token;
+            access_token = incomingEphemeral.access_token;
         }
 
         console.log('ok - requesting devices');
         let from = 0;
-        let total = Infinity;
 
         do {
             const devicesReq = await fetch(`https://${env.AgencyName}.evidence.com/respond/api/v1/devices/states/search`, {
