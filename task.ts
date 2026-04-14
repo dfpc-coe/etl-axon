@@ -130,6 +130,8 @@ export default class Task extends ETL {
         console.log('ok - requesting devices');
         let from = 0;
 
+        let total;
+
         do {
             const devicesReq = await fetch(`https://${env.AgencyName}.evidence.com/respond/api/v1/devices/states/search`, {
                 method: 'POST',
