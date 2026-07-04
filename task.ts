@@ -103,6 +103,8 @@ export default class Task extends ETL {
                 })
             })
 
+            console.log(await oauthReq.text());
+
             const oauthRes = await oauthReq.typed(Type.Object({
                 access_token: Type.String(),
                 token_type: Type.String(),
