@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.15.2
+
+- :rocket: Print additional debug info on auth failure
+
 ### v1.15.1
 
 - :bug: Remove debug code
