@@ -103,6 +103,11 @@ export default class Task extends ETL {
                 })
             })
 
+            if (oauthReq.status !== 200) {
+                console.error(oauthReq.status, await oauthReq.text());
+                throw new Error('OAuth Request Failed');
+            }
+
             const oauthRes = await oauthReq.typed(Type.Object({
                 access_token: Type.String(),
                 token_type: Type.String(),
