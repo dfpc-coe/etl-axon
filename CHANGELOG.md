@@ -10,6 +10,11 @@
 
 ## Version History
 
+### v1.16.0
+
+- :rocket: Add Capabilities document
+- :arrow_up: Update GH Actions
+
 ### v1.15.2
 
 - :rocket: Print additional debug info on auth failure
