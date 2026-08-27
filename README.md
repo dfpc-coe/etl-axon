@@ -11,12 +11,12 @@
 3. Then select "API Settings" under "Security Settings"![image](https://github.com/user-attachments/assets/f83d665c-aea6-4077-8b2d-ea04105644f7)
 4. Click "Create Client" & fill in a name - IE "COTAK"
 5. For API permissions select the following:
-    - `Device: state.any.read Allowed`![rtaImage](https://github.com/user-attachments/assets/b3869554-9461-49b5-a5c7-a1915f799aeb)
-
+    - `Device Section: state.any.read Allowed`![rtaImage](https://github.com/user-attachments/assets/b3869554-9461-49b5-a5c7-a1915f799aeb)
+- `Respond Section:
     - `Respond: self.locate: Allowed`
     - `Respond: self.alert_mark: Allowed`
     - `Respond: any.locate: Allowed`![rtaImage](https://github.com/user-attachments/assets/cb494eeb-f031-4fcc-95b0-a5afbc73596d)
-
+- `Users Section:
     - `Users: read: Allowed`![rtaImage](https://github.com/user-attachments/assets/99584d98-f2ad-4a95-b0ce-fbd311d3c33b)
 
 6. Create the client & Provide the:
