@@ -34,7 +34,7 @@ const InputSchema = Type.Object({
 const OutputSchema = Type.Object({
     partnerName: Type.String(),
     axonDeviceId: Type.String(),
-    deviceModel: Type.String(),
+    deviceModel: Type.Optional(Type.String()),
     deviceUpdateTimestamp: Type.Integer(),
     deviceSerial: Type.String(),
     location_accuracy: Type.Number(),
@@ -163,7 +163,7 @@ export default class Task extends ETL {
                     partnerId: Type.String(),
                     partnerName: Type.String(),
                     axonDeviceId: Type.String(),
-                    deviceModel: Type.String(),
+                    deviceModel: Type.Optional(Type.String()),
                     deviceUpdateTimestamp: Type.Integer(),
                     attributes: Type.Object({
                         deviceSerial: Type.String(),
@@ -174,10 +174,10 @@ export default class Task extends ETL {
                             locationUpdateTimestamp: Type.Integer()
                         })),
                         status: Type.String(),
-                        stream: Type.Object({
+                        stream: Type.Optional(Type.Object({
                             isStreamable: Type.Boolean(),
                             reason: Type.Optional(Type.String())
-                        }),
+                        })),
                         links: Type.Optional(Type.Object({
                             view: Type.String()
                         })),

@@ -10,6 +10,12 @@
 
 ## Version History
 
+### Pending Release
+
+### v1.16.1
+
+- :bug: Allow devices without `deviceModel` or `stream` in the device state response
+
 ### v1.16.0
 
 - :rocket: Add Capabilities document
