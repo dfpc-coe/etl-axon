@@ -230,8 +230,10 @@ export default class Task extends ETL {
                     // We cut off devices if we haveh't seen them for 30 minutes
                     || new Date(device.attributes.location.locationUpdateTimestamp).getTime() < new Date().getTime() - (env.DataTimeout * 60 * 1000)
                 ) {
+                console.error(JSON.stringify(device));
                     continue;
                 }
+
 
                 const metadata = {
                     partnerName: device.partnerName,
