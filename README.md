@@ -25,6 +25,7 @@
 - Client ID
 - Agency Domain (IE <your-agency>.evidence.com)![rtaImage](https://github.com/user-attachments/assets/10316d45-6ec8-484d-8444-6d028bb1f9e9)
 
+7. Some cameras may not display location automatically, causing the logs to read "0 features" available. To resolve this, ensure "Livestreaming" is set to "Always available when recording" under the camera profile config. 
 
 ## Development Information
 
