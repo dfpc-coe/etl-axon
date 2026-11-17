@@ -143,7 +143,7 @@ export default class Task extends ETL {
                     Authorization: `Bearer ${access_token}`
                 },
                 body: JSON.stringify({
-                    from: 0,
+                    from,
                     size: 2000
                 })
             });

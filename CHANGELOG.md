@@ -12,6 +12,10 @@
 
 ### Pending Release
 
+### v1.20.1
+
+- :bug: Avoid sending 1 paged requests
+
 ### v1.20.0
 
 - :arrow_up: Migrate to TS7 for blazing build times
