@@ -64,29 +64,25 @@ export default class Task extends ETL {
         type: SchemaType = SchemaType.Input,
         flow: DataFlowType = DataFlowType.Incoming
     ): Promise<TSchema> {
-        if (flow === DataFlowType.Incoming) {
-            if (type === SchemaType.Input) {
-                return InputSchema;
-            } else {
-                return OutputSchema;
-            }
-        } else {
-            return Type.Object({});
-        }
+        if (flow !== DataFlowType.Incoming) return Type.Object({});
+
+        return type === SchemaType.Input ? InputSchema : OutputSchema;
     }
 
     async control(): Promise<void> {
         const layer = await this.fetchLayer();
         const env = await this.env(InputSchema);
         const incomingEphemeral = layer.incoming?.ephemeral;
+        const storedToken = typeof incomingEphemeral?.access_token === 'string' ? incomingEphemeral.access_token : '';
+        const storedExpires = typeof incomingEphemeral?.access_token_expires === 'string' ? incomingEphemeral.access_token_expires : '';
 
-        let access_token;
+        let access_token: string;
 
         if (
-            !incomingEphemeral?.access_token
-            || !incomingEphemeral.access_token_expires
+            !storedToken
+            || !storedExpires
             // If Token is going to expire within 1 minute, request a new token
-            || (Number(incomingEphemeral.access_token_expires) + 60000) < +new Date()
+            || (Number(storedExpires) + 60000) < Date.now()
         ) {
             console.log('ok - Requesting New Token');
 
@@ -129,7 +125,7 @@ export default class Task extends ETL {
 
             access_token = oauthRes.access_token;
         } else {
-            access_token = incomingEphemeral.access_token;
+            access_token = storedToken;
         }
 
         console.log('ok - requesting devices');
@@ -216,8 +212,8 @@ export default class Task extends ETL {
                 return;
             }
 
-            for (const device of devicesRes.data || []) {
-                const primary = (device.attributes.assignees || []).filter((user) => {
+            for (const device of devicesRes.data) {
+                const primary = (device.attributes.assignees ?? []).filter((user) => {
                     return user.primary
                 })
 
@@ -228,7 +224,7 @@ export default class Task extends ETL {
                     // If the device has no location, we can't use it
                     !device.attributes.location
                     // We cut off devices if we haveh't seen them for 30 minutes
-                    || new Date(device.attributes.location.locationUpdateTimestamp).getTime() < new Date().getTime() - (env.DataTimeout * 60 * 1000)
+                    || new Date(device.attributes.location.locationUpdateTimestamp).getTime() < Date.now() - (env.DataTimeout * 60 * 1000)
                 ) {
                 console.error(JSON.stringify(device));
                     continue;
@@ -249,23 +245,23 @@ export default class Task extends ETL {
                     stream_isStreamable: device.attributes.stream ? device.attributes.stream.isStreamable : false,
                     signalStrength: device.attributes.signalStrengths ? device.attributes.signalStrengths[0].signalStrength : undefined,
                     battery: device.attributes.batteries ? device.attributes.batteries[0].batteryPercentage : undefined,
-                    primary_assignee_firstName: primary.length ? primary[0].firstName : undefined,
-                    primary_assignee_lastName: primary.length ? primary[0].lastName : undefined,
-                    primary_assignee_badgeNumber: primary.length ? primary[0].badgeNumber : undefined,
-                    primary_assignee_userId: primary.length ? primary[0].userId : undefined,
+                    primary_assignee_firstName: primary.length > 0 ? primary[0].firstName : undefined,
+                    primary_assignee_lastName: primary.length > 0 ? primary[0].lastName : undefined,
+                    primary_assignee_badgeNumber: primary.length > 0 ? primary[0].badgeNumber : undefined,
+                    primary_assignee_userId: primary.length > 0 ? primary[0].userId : undefined,
                     vehicle_vehicleId: device.attributes.vehicle ? device.attributes.vehicle.vehicleId : undefined,
                     vehicle_assigneeType: device.attributes.vehicle ? device.attributes.vehicle.assigneeType : undefined,
                     vehicle_vehicleName: device.attributes.vehicle ? device.attributes.vehicle.vehicleName : undefined
                 }
 
-                if (primary.length) {
+                if (primary.length > 0) {
                     features.push({
                         id: device.axonDeviceId,
                         type: 'Feature',
                         properties: {
                             type: 'a-f-G-U-U-L',
                             how: 'm-g',
-                            callsign: (primary.length ? `${env.AgencyAcronym || ''} ${primary[0].firstName.slice(0, 1)}. ${primary[0].lastName}` : 'Unknown User').trim(),
+                            callsign: (primary.length > 0 ? `${env.AgencyAcronym || ''} ${primary[0].firstName.slice(0, 1)}. ${primary[0].lastName}` : 'Unknown User').trim(),
                             time: new Date().toISOString(),
                             start: new Date(device.attributes.location.locationUpdateTimestamp).toISOString(),
                             status: device.attributes.batteries ? {
@@ -274,7 +270,7 @@ export default class Task extends ETL {
                             remarks: [
                                 'Type: Officer',
                                 `Agency: ${device.partnerName}`,
-                                `Name: ${primary.length ? primary[0].firstName + " " + primary[0].lastName: "Unknown"}`
+                                `Name: ${primary.length > 0 ? primary[0].firstName + " " + primary[0].lastName: "Unknown"}`
                             ].join('\n'),
                             metadata: metadata
                         },
@@ -315,14 +311,14 @@ export default class Task extends ETL {
 
             await this.submit(fc);
 
-            total = devicesRes.meta.totalHits || 0;
+            total = devicesRes.meta.totalHits ?? 0;
             from = from + 2000;
         } while (total > from)
     }
 }
 
 await local(await Task.init(import.meta.url), import.meta.url);
-export async function handler(event: Event = {}) {
-    return await internal(await Task.init(import.meta.url), event);
+export async function handler(event: Event = {}): ReturnType<typeof internal> {
+    return internal(await Task.init(import.meta.url), event);
 }
 
